@@ -1,48 +1,35 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
 
-import { PatientForm } from "@/components/forms/PatientForm";
-import { PasskeyModal } from "@/components/PasskeyModal";
-
-const Home = ({ searchParams }: SearchParamProps) => {
-  const isAdmin = searchParams?.admin === "true";
-
+export default function Home() {
   return (
-    <div className="flex h-screen max-h-screen">
-      {isAdmin && <PasskeyModal />}
-
-      <section className="remove-scrollbar container my-auto">
-        <div className="sub-container max-w-[496px]">
-          <Image
-            src="/assets/icons/logo-full.svg"
-            height={1000}
-            width={1000}
-            alt="patient"
-            className="mb-12 h-10 w-fit"
-          />
-
-          <PatientForm />
-
-          <div className="text-14-regular mt-20 flex justify-between">
-            <p className="justify-items-end text-dark-600 xl:text-left">
-              © 2024 CarePluse
-            </p>
-            <Link href="/?admin=true" className="text-green-500">
-              Admin
-            </Link>
-          </div>
+    <main className="container flex items-center justify-center h-[calc(100vh-2rem)]">
+      <section className="sub-container max-w-3xl text-center">
+        <h1 className="header bg-gradient-to-r from-green-500 to-blue-500 clip-text">
+          CarePulse
+        </h1>
+        <p className="text-16-regular mt-4 text-dark-700">
+          Schedule healthcare appointments and get timely reminders. No signup required.
+        </p>
+        <div className="mt-10 flex items-center justify-center gap-4">
+          <Link
+            href="/appointments"
+            className="shad-primary-btn rounded-md px-6 py-3 text-16-semibold"
+          >
+            Schedule an appointment
+          </Link>
+          <a
+            href="https://nextjs.org"
+            target="_blank"
+            rel="noreferrer"
+            className="shad-gray-btn rounded-md px-6 py-3 text-16-semibold"
+          >
+            Learn more
+          </a>
         </div>
+        <p className="copyright mt-20">© {new Date().getFullYear()} CarePulse</p>
       </section>
-
-      <Image
-        src="/assets/images/onboarding-img.png"
-        height={1000}
-        width={1000}
-        alt="patient"
-        className="side-img max-w-[50%]"
-      />
-    </div>
+    </main>
   );
-};
-
-export default Home;
+}
