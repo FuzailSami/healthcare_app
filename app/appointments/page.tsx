@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { z } from "zod";
 import { ScheduleAppointmentSchema } from "@/lib/validation";
 import { formatDateTime } from "@/lib/utils";
+import { Header } from "@/components/header";
+import { AppointmentCard } from "@/components/appointment-card";
 
 type Appointment = {
   id: string;
@@ -136,135 +137,185 @@ export default function AppointmentsPage() {
   }
 
   return (
-    <main className="container py-10">
-      <div className="sub-container max-w-4xl">
-        <div className="flex-between">
-          <h1 className="header">Appointments</h1>
-          <a href="/" className="text-14-medium text-green-500">Home</a>
+    <>
+      <Header />
+      <main className="min-h-screen bg-gradient-to-b from-dark-300 to-dark-400">
+        <div className="container max-w-6xl mx-auto px-4 pt-24 pb-12">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-green-400 to-teal-400 text-transparent bg-clip-text mb-4">
+              Manage Your Appointments
+            </h1>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Schedule and manage your healthcare appointments with ease. Get reminders and keep track of your medical visits all in one place.
+            </p>
+          </div>
+
+          <div className="bg-dark-200/50 backdrop-blur-lg rounded-2xl p-6 border border-gray-800 mb-12">
+            <h2 className="text-xl font-semibold text-gray-100 mb-6">Schedule New Appointment</h2>
+            <form onSubmit={addAppointment} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Patient Name</label>
+                <input
+                  className="w-full px-4 py-2.5 bg-dark-400/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 text-gray-100 placeholder:text-gray-500"
+                  name="patientName"
+                  value={form.patientName}
+                  onChange={handleChange}
+                  placeholder="Enter patient name"
+                  required
+                  minLength={2}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Select Physician</label>
+                <select
+                  name="primaryPhysician"
+                  value={form.primaryPhysician}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-dark-400/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 text-gray-100"
+                  required
+                >
+                  <option value="" disabled>Choose a doctor</option>
+                  <option>Dr. Smith</option>
+                  <option>Dr. Johnson</option>
+                  <option>Dr. Patel</option>
+                  <option>Dr. Chen</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Appointment Date & Time</label>
+                <input
+                  type="datetime-local"
+                  name="schedule"
+                  value={form.schedule}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-dark-400/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 text-gray-100"
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-300">Reason for Visit</label>
+                <input
+                  name="reason"
+                  value={form.reason}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-dark-400/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 text-gray-100 placeholder:text-gray-500"
+                  placeholder="e.g., Annual checkup, Follow-up"
+                />
+              </div>
+
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-sm font-medium text-gray-300">Additional Notes</label>
+                <textarea
+                  name="note"
+                  value={form.note}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2.5 bg-dark-400/50 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500/50 text-gray-100 placeholder:text-gray-500"
+                  rows={3}
+                  placeholder="Any additional information..."
+                />
+              </div>
+
+              {error && (
+                <div className="md:col-span-2">
+                  <p className="text-red-400 text-sm">{error}</p>
+                </div>
+              )}
+
+              <div className="md:col-span-2 flex justify-end">
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 bg-gradient-to-r from-green-500 to-teal-500 text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  Schedule Appointment
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-100">Upcoming Appointments</h2>
+                <span className="px-3 py-1 bg-green-500/10 text-green-400 text-sm font-medium rounded-full">
+                  {upcoming.length} scheduled
+                </span>
+              </div>
+              
+              <div className="space-y-4">
+                {upcoming.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg className="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-gray-500">No upcoming appointments</p>
+                  </div>
+                ) : (
+                  upcoming.map(a => {
+                    const { dateDay, timeOnly } = formatDateTime(a.schedule);
+                    return (
+                      <AppointmentCard
+                        key={a.id}
+                        patientName={a.patientName}
+                        doctorName={a.primaryPhysician}
+                        date={dateDay}
+                        time={timeOnly}
+                        reason={a.reason}
+                        onRemove={() => removeAppointment(a.id)}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-gray-100">Past Appointments</h2>
+                <span className="px-3 py-1 bg-gray-500/10 text-gray-400 text-sm font-medium rounded-full">
+                  {past.length} completed
+                </span>
+              </div>
+              
+              <div className="space-y-4">
+                {past.length === 0 ? (
+                  <div className="text-center py-12">
+                    <svg className="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-gray-500">No past appointments</p>
+                  </div>
+                ) : (
+                  past.map(a => {
+                    const { dateDay, timeOnly } = formatDateTime(a.schedule);
+                    return (
+                      <AppointmentCard
+                        key={a.id}
+                        patientName={a.patientName}
+                        doctorName={a.primaryPhysician}
+                        date={dateDay}
+                        time={timeOnly}
+                        reason={a.reason}
+                        isPast
+                        onRemove={() => removeAppointment(a.id)}
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500">
+              Browser notifications will remind you 15 minutes before each appointment while this tab is open.
+            </p>
+          </div>
         </div>
-
-        <form onSubmit={addAppointment} className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 bg-dark-200 p-5 rounded-xl">
-          <div>
-            <label className="shad-input-label">Patient name</label>
-            <input
-              className="shad-input w-full rounded-md px-3"
-              name="patientName"
-              value={form.patientName}
-              onChange={handleChange}
-              placeholder="Jane Doe"
-              required
-              minLength={2}
-            />
-          </div>
-          <div>
-            <label className="shad-input-label">Physician</label>
-            <select
-              name="primaryPhysician"
-              value={form.primaryPhysician}
-              onChange={handleChange}
-              className="shad-select-trigger w-full rounded-md px-3"
-              required
-            >
-              <option value="" disabled>
-                Select a physician
-              </option>
-              <option>Dr. Smith</option>
-              <option>Dr. Johnson</option>
-              <option>Dr. Patel</option>
-              <option>Dr. Chen</option>
-            </select>
-          </div>
-          <div>
-            <label className="shad-input-label">Date & time</label>
-            <input
-              type="datetime-local"
-              name="schedule"
-              value={form.schedule}
-              onChange={handleChange}
-              className="shad-input w-full rounded-md px-3"
-              required
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="shad-input-label">Reason (optional)</label>
-            <input
-              name="reason"
-              value={form.reason}
-              onChange={handleChange}
-              className="shad-input w-full rounded-md px-3"
-              placeholder="e.g., Follow-up, annual checkup"
-            />
-          </div>
-          <div className="md:col-span-2">
-            <label className="shad-input-label">Note (optional)</label>
-            <textarea
-              name="note"
-              value={form.note}
-              onChange={handleChange}
-              className="shad-textArea w-full rounded-md px-3 py-2"
-              rows={3}
-            />
-          </div>
-          {error && <p className="shad-error md:col-span-2">{error}</p>}
-          <div className="md:col-span-2 flex justify-end">
-            <button type="submit" className="shad-primary-btn rounded-md px-6 py-2 text-16-semibold">
-              Add appointment
-            </button>
-          </div>
-        </form>
-
-        <section className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-2xl p-5 bg-dark-200">
-            <h2 className="sub-header">Upcoming</h2>
-            <ul className="mt-4 space-y-3">
-              {upcoming.length === 0 && (
-                <li className="text-dark-600 text-14-regular">No upcoming appointments</li>
-              )}
-              {upcoming.map(a => {
-                const { dateDay, timeOnly } = formatDateTime(a.schedule);
-                return (
-                  <li key={a.id} className="data-table p-4 flex-between rounded-lg">
-                    <div>
-                      <p className="text-16-semibold">{a.patientName} • {a.primaryPhysician}</p>
-                      <p className="text-14-regular text-dark-700">{dateDay} at {timeOnly}</p>
-                    </div>
-                    <button onClick={() => removeAppointment(a.id)} className="shad-danger-btn rounded-md px-4 py-2 text-14-medium">
-                      Cancel
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-          <div className="rounded-2xl p-5 bg-dark-200">
-            <h2 className="sub-header">Past</h2>
-            <ul className="mt-4 space-y-3">
-              {past.length === 0 && (
-                <li className="text-dark-600 text-14-regular">No past appointments</li>
-              )}
-              {past.map(a => {
-                const { dateDay, timeOnly } = formatDateTime(a.schedule);
-                return (
-                  <li key={a.id} className="data-table p-4 flex-between rounded-lg">
-                    <div>
-                      <p className="text-16-semibold">{a.patientName} • {a.primaryPhysician}</p>
-                      <p className="text-14-regular text-dark-700">{dateDay} at {timeOnly}</p>
-                    </div>
-                    <button onClick={() => removeAppointment(a.id)} className="shad-gray-btn rounded-md px-4 py-2 text-14-medium">
-                      Remove
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
-
-        <p className="text-12-regular text-dark-600 mt-8">
-          Reminders are delivered via browser notifications 15 minutes before an appointment while this tab is open.
-        </p>
-      </div>
-    </main>
+      </main>
+    </>
   );
 }
 
